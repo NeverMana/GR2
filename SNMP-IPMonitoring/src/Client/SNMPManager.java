@@ -15,7 +15,7 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
-public class test {
+public class SNMPManager {
 
     Snmp snmp = null;
     String address = null;
@@ -24,7 +24,7 @@ public class test {
      * Constructor
      * @param add
      */
-    public test(String add)
+    public SNMPManager(String add)
     {
         address = add;
     }
