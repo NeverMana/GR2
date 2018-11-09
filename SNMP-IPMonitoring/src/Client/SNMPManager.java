@@ -70,7 +70,7 @@ public class SNMPManager {
     }
 
     /**
-     * This method is capable of handling multiple OIDs
+     * This method is capable of handling multiple OIDs0
      * @param oids
      * @return
      * @throws IOException
