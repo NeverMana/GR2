@@ -20,7 +20,7 @@ public class SNMPClient {
     Snmp snmp = null;
     String address ;
 
-    public SNMPManager(String add)
+    public SNMPClient(String add)
     {
         address = add;
     }
