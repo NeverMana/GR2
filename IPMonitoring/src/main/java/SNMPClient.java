@@ -35,50 +35,21 @@ public class SNMPClient {
     public void setIp(String ip){
         String[] split = address.split("/");
         address = "udp:" + ip + "/" + split[1];
+        updateTarget();
 
     }
     public void setPort(String port){
         String[] split = address.split("/");
         address = split[0] + "/" + port;
+        updateTarget();
     }
 
-    public void runDefault() throws IOException {
-        start();
-        target = configTarget(target,address);
+    public void walk(String oid) {
     }
-
-    /*
-        int op=0;
-        switch (op){
-            case 0:{
-                Map<String, String> result = client.doWalk(oid, target); // ifTable, mib-2 interfaces
-                client.printWalk(result);
-            }
-            case 1:{
-                String val = client.getAsString(new OID(oid));
-                System.out.println(val);
-            }
-        }
-
-     */
-
-    private void printWalk(@NotNull Map<String, String> result) throws IOException {
-
-        for (Map.Entry<String, String> entry : result.entrySet()) {
-            if (entry.getKey().startsWith(".1.3.6.1.2.1.2.2.1.2.")) {
-                System.out.println("ifDescr" + entry.getKey().replace(".1.3.6.1.2.1.2.2.1.2", "") + ": " + entry.getValue());
-            }
-            if (entry.getKey().startsWith(".1.3.6.1.2.1.2.2.1.3.")) {
-                System.out.println("ifType" + entry.getKey().replace(".1.3.6.1.2.1.2.2.1.3", "") + ": " + entry.getValue());
-            }
-        }
-    }
-
 
 
     public Map<String, String> doWalk(String tableOid, Target target) throws IOException {
         Map<String, String> result = new TreeMap<String, String>();
-
         TreeUtils treeUtils = new TreeUtils(snmp, new DefaultPDUFactory());
         List<TreeEvent> events = treeUtils.getSubtree(target, new OID(tableOid));
         if (events == null || events.size() == 0) {
@@ -112,19 +83,19 @@ public class SNMPClient {
         return result;
     }
 
-    private void start() throws IOException {
+    public void start() throws IOException {
         TransportMapping transport = new DefaultUdpTransportMapping();
         snmp = new Snmp(transport);
         transport.listen();
     }
 
-    private CommunityTarget configTarget(@NotNull CommunityTarget target, String add) {
+    private void configTarget(@NotNull CommunityTarget target, String add) {
         target.setCommunity(new OctetString("public"));
         target.setAddress(GenericAddress.parse(add));
         target.setRetries(2);
         target.setTimeout(1500);
         target.setVersion(SnmpConstants.version2c);
-        return target;
+
     }
 
     private String getAsString(OID oid) throws IOException {
@@ -156,5 +127,7 @@ public class SNMPClient {
         target.setVersion(SnmpConstants.version2c);
         return target;
     }
-
+    private void updateTarget(){
+        configTarget(target,address);
+    }
 }

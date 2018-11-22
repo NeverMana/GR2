@@ -1,10 +1,13 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Ux {
-    int op;
-    Scanner input;
-    SNMPClient client;
+    private int op;
+    private Scanner input;
+    private SNMPClient client;
 
     public Ux(){
         op=6;
@@ -12,35 +15,40 @@ public class Ux {
     }
     public static void main(String[] args) throws IOException {
         Ux u = new Ux();
-        u.setupAgente();
+        u.setupClient();
         while(u.op!=0){
             u.displayMenu();
             u.changeOption();
         }
     }
 
-    public void displayMenu(){
+    private void displayMenu(){
         System.out.println("Select operation");
-        System.out.println("1: snmpwalk");
-        System.out.println("2: snmpget");
-        System.out.println("3: snmpgetnext");
-        System.out.println("4: mudar ip agente");
-        System.out.println("5: mudar porta");
-        System.out.println("0: sair");
+        System.out.println("1: Do snmpwalk");
+        System.out.println("2: Do snmpget");
+        System.out.println("3: Do snmpgetnext");
+        System.out.println("4: Change IP");
+        System.out.println("5: Change port");
+        System.out.println("6: Change IP and Port");
+        System.out.println("0: Exit");
         op = input.nextInt();
     }
 
-    public void changeOption(){
+    private void changeOption(){
+        String oid;
         switch (op){
             case 0: return;
             case 1: {
-                startWalk();
+                oid = selectOID();
+                startWalk(oid);
             }
             case 2: {
-                startGet();
+                oid = selectOID();
+                startGet(oid);
             }
             case 3: {
-                startGetNext();
+                oid = selectOID();
+                startGetNext(oid);
             }
             case 4: {
                 ipChange();
@@ -48,50 +56,69 @@ public class Ux {
             case 5: {
                 portChange();
             }
+            case 6: {
+                ipChange();
+                portChange();
+            }
         }
     }
-    public void startWalk(){
+
+    private String selectOID(){
+        System.out.println("Insert intended object ID:");
+        String oid = input.nextLine();
+        return oid;
+    }
+
+    private void startWalk(String oid){
+        client.walk(oid);
+    }
+
+    private void startGet(String oid){
 
     }
-    public void startGet(){
+
+    private void startGetNext(String oid){
 
     }
-    public void startGetNext(){
 
+    private void printWalk(@NotNull Map<String, String> result) throws IOException {
+
+        //Isto assume que estamos a fazer walk no OID da ifTable
+        for (Map.Entry<String, String> entry : result.entrySet()) {
+            if (entry.getKey().startsWith(".1.3.6.1.2.1.2.2.1.2.")) {
+                System.out.println("ifDescr" + entry.getKey().replace(".1.3.6.1.2.1.2.2.1.2", "") + ": " + entry.getValue());
+            }
+            if (entry.getKey().startsWith(".1.3.6.1.2.1.2.2.1.3.")) {
+                System.out.println("ifType" + entry.getKey().replace(".1.3.6.1.2.1.2.2.1.3", "") + ": " + entry.getValue());
+            }
+        }
     }
-    public void ipChange(){
-        String add, ip;
-        System.out.println("Indique ip do agente");
+
+
+    private void ipChange(){
+        String ip;
+        System.out.println("Select IP");
         ip = input.nextLine();
         client.setIp(ip);
-        try {
-            client.runDefault();
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-    public void portChange(){
-        String add, porta;
-        System.out.println("Indique porta");
-        porta = input.nextLine();
-        client.setPort(porta);
-        try {
-            client.runDefault();
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-        }
     }
 
-    public void setupAgente(){
-        String add, ip, porta;
-        System.out.println("Indique ip do agente");
+    private void portChange(){
+        String port;
+        System.out.println("Select Port");
+        port = input.nextLine();
+        client.setPort(port);
+    }
+
+    private void setupClient(){
+        String add, ip, port;
+        System.out.println("Select IP");
         ip = input.nextLine();
-        System.out.println("Indique porta");
-        porta = input.nextLine();
-        add = "udp:"+ip+"/"+porta;
+        System.out.println("Select Port");
+        port = input.nextLine();
+        add = "udp:"+ip+"/"+port;
         client = new SNMPClient(add);
         try {
-            client.runDefault();
+            client.start();
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
