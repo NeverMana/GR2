@@ -3,6 +3,8 @@ import java.util.Scanner;
 import java.util.*;
 
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
@@ -23,19 +25,25 @@ import org.snmp4j.util.TreeUtils;
 public class SNMPClient {
     Snmp snmp = null;
     String address ;
+    CommunityTarget target;
 
     public SNMPClient(String add) {
         address = add;
+        target = new CommunityTarget();
     }
-    public void runDefault(String oid) throws IOException {
 
-        CommunityTarget target = new CommunityTarget();
+    public void setIp(String ip){
+        String[] split = address.split("/");
+        address = "udp:" + ip + "/" + split[1];
+
+    }
+    public void setPort(String port){
+        String[] split = address.split("/");
+        address = split[0] + "/" + port;
+    }
+
+    public void runDefault() throws IOException {
         start();
-        /*
-        * OIDs:
-        * ".1.3.6.1.2.1.1.1.0" - sysdescription
-        * ".1.3.6.1.2.1.2.2" ifTable
-        */
         target = configTarget(target,address);
     }
 
@@ -54,7 +62,7 @@ public class SNMPClient {
 
      */
 
-    private void printWalk(Map<String, String> result) throws IOException {
+    private void printWalk(@NotNull Map<String, String> result) throws IOException {
 
         for (Map.Entry<String, String> entry : result.entrySet()) {
             if (entry.getKey().startsWith(".1.3.6.1.2.1.2.2.1.2.")) {
@@ -65,14 +73,8 @@ public class SNMPClient {
             }
         }
     }
-    private CommunityTarget configTarget(CommunityTarget target, String add) {
-        target.setCommunity(new OctetString("public"));
-        target.setAddress(GenericAddress.parse(add));
-        target.setRetries(2);
-        target.setTimeout(1500);
-        target.setVersion(SnmpConstants.version2c);
-        return target;
-    }
+
+
 
     public Map<String, String> doWalk(String tableOid, Target target) throws IOException {
         Map<String, String> result = new TreeMap<String, String>();
@@ -116,14 +118,22 @@ public class SNMPClient {
         transport.listen();
     }
 
+    private CommunityTarget configTarget(@NotNull CommunityTarget target, String add) {
+        target.setCommunity(new OctetString("public"));
+        target.setAddress(GenericAddress.parse(add));
+        target.setRetries(2);
+        target.setTimeout(1500);
+        target.setVersion(SnmpConstants.version2c);
+        return target;
+    }
 
-    public String getAsString(OID oid) throws IOException {
+    private String getAsString(OID oid) throws IOException {
         ResponseEvent event = get(new OID[] { oid });
         return event.getResponse().get(0).getVariable().toString();
     }
 
 
-    public ResponseEvent get(OID oids[]) throws IOException {
+    private ResponseEvent get(@NotNull OID oids[]) throws IOException {
         PDU pdu = new PDU();
         for (OID oid : oids) {
             pdu.add(new VariableBinding(oid));

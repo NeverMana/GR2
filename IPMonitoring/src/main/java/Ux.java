@@ -60,10 +60,26 @@ public class Ux {
 
     }
     public void ipChange(){
-
+        String add, ip;
+        System.out.println("Indique ip do agente");
+        ip = input.nextLine();
+        client.setIp(ip);
+        try {
+            client.runDefault();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
     public void portChange(){
-
+        String add, porta;
+        System.out.println("Indique porta");
+        porta = input.nextLine();
+        client.setPort(porta);
+        try {
+            client.runDefault();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 
     public void setupAgente(){
@@ -74,5 +90,10 @@ public class Ux {
         porta = input.nextLine();
         add = "udp:"+ip+"/"+porta;
         client = new SNMPClient(add);
+        try {
+            client.runDefault();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 }
