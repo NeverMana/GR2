@@ -1,4 +1,3 @@
-package Client;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.*;
@@ -22,42 +21,25 @@ import org.snmp4j.util.TreeEvent;
 import org.snmp4j.util.TreeUtils;
 
 public class SNMPClient {
-
     Snmp snmp = null;
     String address ;
 
-    public SNMPClient(String add)
-    {
+    public SNMPClient(String add) {
         address = add;
     }
-
-    public static void main(String[] args) throws IOException {
-        Scanner input;
-        String add, ip, porta, sysDescr, oid;
-        SNMPClient client;
+    public void runDefault(String oid) throws IOException {
 
         CommunityTarget target = new CommunityTarget();
-
-        System.out.println("Indique ip do agente:");
-        input = new Scanner(System. in);
-        ip = input. nextLine(); //formato::  "127.0.0.1"
-        System.out.println("Indique porta:");
-        porta = input.nextLine();//int
-        add = "udp:"+ip+"/"+porta;
-
-
-        client = new SNMPClient(add);
-        client.start();
-
-
-        System.out.println("Indique OID:");
+        start();
         /*
         * OIDs:
         * ".1.3.6.1.2.1.1.1.0" - sysdescription
         * ".1.3.6.1.2.1.2.2" ifTable
         */
-        oid= input.nextLine();
-        target = client.configTarget(target,add);
+        target = configTarget(target,address);
+    }
+
+    /*
         int op=0;
         switch (op){
             case 0:{
@@ -70,9 +52,7 @@ public class SNMPClient {
             }
         }
 
-
-
-    }
+     */
 
     private void printWalk(Map<String, String> result) throws IOException {
 
@@ -85,7 +65,6 @@ public class SNMPClient {
             }
         }
     }
-
     private CommunityTarget configTarget(CommunityTarget target, String add) {
         target.setCommunity(new OctetString("public"));
         target.setAddress(GenericAddress.parse(add));
@@ -94,12 +73,6 @@ public class SNMPClient {
         target.setVersion(SnmpConstants.version2c);
         return target;
     }
-
-    /*
-        TransportMapping<? extends Address> transport = new DefaultUdpTransportMapping();
-        Snmp snmp = new Snmp(transport);
-        transport.listen();
-     */
 
     public Map<String, String> doWalk(String tableOid, Target target) throws IOException {
         Map<String, String> result = new TreeMap<String, String>();
