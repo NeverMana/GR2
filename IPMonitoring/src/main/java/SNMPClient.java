@@ -44,11 +44,19 @@ public class SNMPClient {
         updateTarget();
     }
 
-    public void walk(String oid) {
+    public void start() throws IOException {
+        TransportMapping transport = new DefaultUdpTransportMapping();
+        snmp = new Snmp(transport);
+        transport.listen();
     }
 
+    public String getAsString(String oid) throws IOException {
+        OID obj = new OID(oid);
+        ResponseEvent event = get(new OID[] { obj });
+        return event.getResponse().get(0).getVariable().toString();
+    }
 
-    public Map<String, String> doWalk(String tableOid, Target target) throws IOException {
+    public Map<String, String> doWalk(String tableOid) throws IOException {
         Map<String, String> result = new TreeMap<String, String>();
         TreeUtils treeUtils = new TreeUtils(snmp, new DefaultPDUFactory());
         List<TreeEvent> events = treeUtils.getSubtree(target, new OID(tableOid));
@@ -83,26 +91,13 @@ public class SNMPClient {
         return result;
     }
 
-    public void start() throws IOException {
-        TransportMapping transport = new DefaultUdpTransportMapping();
-        snmp = new Snmp(transport);
-        transport.listen();
-    }
-
     private void configTarget(@NotNull CommunityTarget target, String add) {
         target.setCommunity(new OctetString("public"));
         target.setAddress(GenericAddress.parse(add));
         target.setRetries(2);
         target.setTimeout(1500);
         target.setVersion(SnmpConstants.version2c);
-
     }
-
-    private String getAsString(OID oid) throws IOException {
-        ResponseEvent event = get(new OID[] { oid });
-        return event.getResponse().get(0).getVariable().toString();
-    }
-
 
     private ResponseEvent get(@NotNull OID oids[]) throws IOException {
         PDU pdu = new PDU();

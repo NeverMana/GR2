@@ -23,7 +23,8 @@ public class Ux {
     }
 
     private void displayMenu(){
-        System.out.println("Select operation");
+        System.out.println("=====SNMP MANAGER=====");
+        System.out.println("===Select operation===");
         System.out.println("1: Do snmpwalk");
         System.out.println("2: Do snmpget");
         System.out.println("3: Do snmpgetnext");
@@ -31,6 +32,7 @@ public class Ux {
         System.out.println("5: Change port");
         System.out.println("6: Change IP and Port");
         System.out.println("0: Exit");
+        System.out.println("======================");
         op = input.nextInt();
     }
 
@@ -70,17 +72,36 @@ public class Ux {
     }
 
     private void startWalk(String oid){
-        client.walk(oid);
+        Map<String, String> res;
+        try {
+            res = client.doWalk(oid);
+            printResults(res);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void printResults(@NotNull Map<String,String> res){
+        String value;
+        for (String oid: res.keySet() ) {
+            value = res.get(oid);
+            System.out.println(oid + " :: " + value );
+        }
     }
 
     private void startGet(String oid){
-
+        try {
+            String value = client.getAsString(oid);
+            System.out.println(oid + " :: " + value );
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void startGetNext(String oid){
 
     }
-
+/*
     private void printWalk(@NotNull Map<String, String> result) throws IOException {
 
         //Isto assume que estamos a fazer walk no OID da ifTable
@@ -93,7 +114,7 @@ public class Ux {
             }
         }
     }
-
+*/
 
     private void ipChange(){
         String ip;
