@@ -10,7 +10,7 @@ public class Ux {
     private SNMPClient client;
 
     public Ux(){
-        op=6;
+        op=7;
         input = new Scanner(System.in);
     }
     public static void main(String[] args) throws IOException {
@@ -33,42 +33,48 @@ public class Ux {
         System.out.println("6: Change IP and Port");
         System.out.println("0: Exit");
         System.out.println("======================");
-        op = input.nextInt();
+        op = Integer.parseInt( input.nextLine() );
     }
 
     private void changeOption(){
         String oid;
-        switch (op){
-            case 0: return;
+        switch (op) {
+            case 0:
+                break;
             case 1: {
                 oid = selectOID();
                 startWalk(oid);
+                break;
             }
             case 2: {
                 oid = selectOID();
                 startGet(oid);
+                break;
             }
             case 3: {
                 oid = selectOID();
                 startGetNext(oid);
+                break;
             }
             case 4: {
                 ipChange();
+                break;
             }
             case 5: {
                 portChange();
+                break;
             }
             case 6: {
                 ipChange();
                 portChange();
+                break;
             }
         }
     }
 
     private String selectOID(){
         System.out.println("Insert intended object ID:");
-        String oid = input.nextLine();
-        return oid;
+        return input.nextLine();
     }
 
     private void startWalk(String oid){
@@ -77,6 +83,7 @@ public class Ux {
             res = client.doWalk(oid);
             printResults(res);
         } catch (Exception e){
+            e.printStackTrace();
             System.out.println(e.getMessage());
         }
     }

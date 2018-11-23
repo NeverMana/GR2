@@ -30,6 +30,7 @@ public class SNMPClient {
     public SNMPClient(String add) {
         address = add;
         target = new CommunityTarget();
+        configTarget();
     }
 
     public void setIp(String ip){
@@ -45,6 +46,7 @@ public class SNMPClient {
     }
 
     public void start() throws IOException {
+        System.out.println("Starting client");
         TransportMapping transport = new DefaultUdpTransportMapping();
         snmp = new Snmp(transport);
         transport.listen();
@@ -83,7 +85,7 @@ public class SNMPClient {
                     continue;
                 }
 
-                result.put("." + varBinding.getOid().toString(), varBinding.getVariable().toString());
+                result.put("." + varBinding.getOid().format(), varBinding.getVariable().toString());
             }
 
         }
@@ -91,9 +93,9 @@ public class SNMPClient {
         return result;
     }
 
-    private void configTarget(@NotNull CommunityTarget target, String add) {
+    private void configTarget() {
         target.setCommunity(new OctetString("public"));
-        target.setAddress(GenericAddress.parse(add));
+        target.setAddress(GenericAddress.parse(address));
         target.setRetries(2);
         target.setTimeout(1500);
         target.setVersion(SnmpConstants.version2c);
@@ -123,6 +125,6 @@ public class SNMPClient {
         return target;
     }
     private void updateTarget(){
-        configTarget(target,address);
+        configTarget();
     }
 }
