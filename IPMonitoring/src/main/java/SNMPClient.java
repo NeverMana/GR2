@@ -2,8 +2,6 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.*;
 
-
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
@@ -26,6 +24,7 @@ public class SNMPClient {
     Snmp snmp = null;
     String address ;
     CommunityTarget target;
+
 
     public SNMPClient(String add) {
         address = add;
@@ -58,12 +57,12 @@ public class SNMPClient {
         return event.getResponse().get(0).getVariable().toString();
     }
 
-    public Map<String, String> doWalk(String tableOid) throws IOException {
+    public Map<String, String> doWalk(String tableOid) {
         Map<String, String> result = new TreeMap<String, String>();
         TreeUtils treeUtils = new TreeUtils(snmp, new DefaultPDUFactory());
         List<TreeEvent> events = treeUtils.getSubtree(target, new OID(tableOid));
         if (events == null || events.size() == 0) {
-            System.out.println("Error: Unable to read table...");
+            System.out.println("Error: Unable to read table!");
             return result;
         }
 

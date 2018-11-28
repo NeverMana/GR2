@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class Ux {
     private int op;
     private Scanner input;
-    private SNMPClient client;
+    private IFMonTable clients;
 
     public Ux(){
         op=7;
@@ -31,6 +31,7 @@ public class Ux {
         System.out.println("4: Change IP");
         System.out.println("5: Change port");
         System.out.println("6: Change IP and Port");
+        System.out.println("7: Add new SNMP agent");
         System.out.println("0: Exit");
         System.out.println("======================");
         op = Integer.parseInt( input.nextLine() );
@@ -80,7 +81,7 @@ public class Ux {
     private void startWalk(String oid){
         Map<String, String> res;
         try {
-            res = client.doWalk(oid);
+            res = agent.doWalk(oid);
             printResults(res);
         } catch (Exception e){
             e.printStackTrace();
@@ -98,7 +99,7 @@ public class Ux {
 
     private void startGet(String oid){
         try {
-            String value = client.getAsString(oid);
+            String value = agent.getAsString(oid);
             System.out.println(oid + " :: " + value );
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -108,33 +109,19 @@ public class Ux {
     private void startGetNext(String oid){
 
     }
-/*
-    private void printWalk(@NotNull Map<String, String> result) throws IOException {
-
-        //Isto assume que estamos a fazer walk no OID da ifTable
-        for (Map.Entry<String, String> entry : result.entrySet()) {
-            if (entry.getKey().startsWith(".1.3.6.1.2.1.2.2.1.2.")) {
-                System.out.println("ifDescr" + entry.getKey().replace(".1.3.6.1.2.1.2.2.1.2", "") + ": " + entry.getValue());
-            }
-            if (entry.getKey().startsWith(".1.3.6.1.2.1.2.2.1.3.")) {
-                System.out.println("ifType" + entry.getKey().replace(".1.3.6.1.2.1.2.2.1.3", "") + ": " + entry.getValue());
-            }
-        }
-    }
-*/
 
     private void ipChange(){
         String ip;
         System.out.println("Select IP");
         ip = input.nextLine();
-        client.setIp(ip);
+        agent.setIp(ip);
     }
 
     private void portChange(){
         String port;
         System.out.println("Select Port");
         port = input.nextLine();
-        client.setPort(port);
+        agent.setPort(port);
     }
 
     private void setupClient(){
@@ -144,9 +131,9 @@ public class Ux {
         System.out.println("Select Port");
         port = input.nextLine();
         add = "udp:"+ip+"/"+port;
-        client = new SNMPClient(add);
+        agent = new SNMPClient(add);
         try {
-            client.start();
+            agent.start();
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
