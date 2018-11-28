@@ -21,8 +21,9 @@ import org.snmp4j.util.TreeEvent;
 import org.snmp4j.util.TreeUtils;
 
 public class SNMPClient {
+
     Snmp snmp = null;
-    String address ;
+    public String address ;
     CommunityTarget target;
 
 

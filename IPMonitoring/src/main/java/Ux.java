@@ -1,17 +1,22 @@
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import static java.lang.Integer.parseInt;
 
 public class Ux {
     private int op;
     private Scanner input;
-    private IFMonTable clients;
+    private String curAdd;
+    private Map<String, SNMPClient> clients;
 
     public Ux(){
-        op=7;
+        op=9;
         input = new Scanner(System.in);
+        clients = new HashMap<String, SNMPClient>();
     }
     public static void main(String[] args) throws IOException {
         Ux u = new Ux();
@@ -25,16 +30,15 @@ public class Ux {
     private void displayMenu(){
         System.out.println("=====SNMP MANAGER=====");
         System.out.println("===Select operation===");
-        System.out.println("1: Do snmpwalk");
-        System.out.println("2: Do snmpget");
-        System.out.println("3: Do snmpgetnext");
-        System.out.println("4: Change IP");
-        System.out.println("5: Change port");
-        System.out.println("6: Change IP and Port");
-        System.out.println("7: Add new SNMP agent");
+        System.out.println("1: Display Traffic");
+        System.out.println("2: Change IP");
+        System.out.println("3: Change port");
+        System.out.println("4: Change IP and Port");
+        System.out.println("5: Add new SNMP Client");
+        System.out.println("6: Choose Client");
         System.out.println("0: Exit");
         System.out.println("======================");
-        op = Integer.parseInt( input.nextLine() );
+        op = parseInt( input.nextLine() );
     }
 
     private void changeOption(){
@@ -44,33 +48,40 @@ public class Ux {
                 break;
             case 1: {
                 oid = selectOID();
-                startWalk(oid);
+                startGetNext(oid);
                 break;
             }
             case 2: {
-                oid = selectOID();
-                startGet(oid);
+                ipChange();
                 break;
             }
             case 3: {
-                oid = selectOID();
-                startGetNext(oid);
+                portChange();
                 break;
             }
             case 4: {
                 ipChange();
+                portChange();
                 break;
             }
             case 5: {
-                portChange();
-                break;
+                setupClient();
             }
             case 6: {
-                ipChange();
-                portChange();
-                break;
+                selectClient();
             }
         }
+    }
+    private void selectClient(){
+        int i = 0;
+        ArrayList<String> adds = new ArrayList<String>();
+        for (SNMPClient c: clients.values()) {
+            System.out.println("ID:" + i + " , address:" + c.address );
+            adds.add(i,c.address);
+            i++;
+        }
+        op = parseInt( input.nextLine() );
+        curAdd = clients.get(adds.get(op)).address;
     }
 
     private String selectOID(){
@@ -81,7 +92,7 @@ public class Ux {
     private void startWalk(String oid){
         Map<String, String> res;
         try {
-            res = agent.doWalk(oid);
+            res = clients.get(curAdd).doWalk(oid);
             printResults(res);
         } catch (Exception e){
             e.printStackTrace();
@@ -99,7 +110,7 @@ public class Ux {
 
     private void startGet(String oid){
         try {
-            String value = agent.getAsString(oid);
+            String value = clients.get(curAdd).getAsString(oid);
             System.out.println(oid + " :: " + value );
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -114,14 +125,14 @@ public class Ux {
         String ip;
         System.out.println("Select IP");
         ip = input.nextLine();
-        agent.setIp(ip);
+        clients.get(curAdd).setIp(ip);
     }
 
     private void portChange(){
         String port;
         System.out.println("Select Port");
         port = input.nextLine();
-        agent.setPort(port);
+        clients.get(curAdd).setPort(port);
     }
 
     private void setupClient(){
@@ -130,10 +141,10 @@ public class Ux {
         ip = input.nextLine();
         System.out.println("Select Port");
         port = input.nextLine();
-        add = "udp:"+ip+"/"+port;
-        agent = new SNMPClient(add);
+        curAdd = "udp:"+ip+"/"+port;
+        clients.put(curAdd,new SNMPClient(curAdd));
         try {
-            agent.start();
+            clients.get(curAdd).start();
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
