@@ -48,7 +48,6 @@ public class Ux {
                 break;
             case 1: {
                 oid = selectOID();
-                startGetNext(oid);
                 break;
             }
             case 2: {
@@ -89,7 +88,7 @@ public class Ux {
         return input.nextLine();
     }
 
-    private void startWalk(String oid){
+   /* private void startWalk(String oid){
         Map<String, String> res;
         try {
             res = clients.get(curAdd).doWalk(oid);
@@ -98,7 +97,7 @@ public class Ux {
             e.printStackTrace();
             System.out.println(e.getMessage());
         }
-    }
+    }*/
 
     private void printResults(@NotNull Map<String,String> res){
         String value;
@@ -115,10 +114,6 @@ public class Ux {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    private void startGetNext(String oid){
-
     }
 
     private void ipChange(){

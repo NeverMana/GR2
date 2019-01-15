@@ -36,13 +36,22 @@ public class SNMPClient {
     public void setIp(String ip){
         String[] split = address.split("/");
         address = "udp:" + ip + "/" + split[1];
-        updateTarget();
+        configTarget();
 
     }
+
     public void setPort(String port){
         String[] split = address.split("/");
         address = split[0] + "/" + port;
-        updateTarget();
+        configTarget();
+    }
+
+    private void configTarget() {
+        target.setCommunity(new OctetString("public"));
+        target.setAddress(GenericAddress.parse(address));
+        target.setRetries(2);
+        target.setTimeout(1500);
+        target.setVersion(SnmpConstants.version2c);
     }
 
     public void start() throws IOException {
@@ -58,6 +67,20 @@ public class SNMPClient {
         return event.getResponse().get(0).getVariable().toString();
     }
 
+    private ResponseEvent get(@NotNull OID oids[]) throws IOException {
+        PDU pdu = new PDU();
+        for (OID oid : oids) {
+            pdu.add(new VariableBinding(oid));
+        }
+        pdu.setType(PDU.GET);
+        ResponseEvent event = snmp.send(pdu, target, null);
+        if(event != null) {
+            return event;
+        }
+        throw new RuntimeException("GET timed out");
+    }
+
+/*
     public Map<String, String> doWalk(String tableOid) {
         Map<String, String> result = new TreeMap<String, String>();
         TreeUtils treeUtils = new TreeUtils(snmp, new DefaultPDUFactory());
@@ -92,39 +115,5 @@ public class SNMPClient {
 
         return result;
     }
-
-    private void configTarget() {
-        target.setCommunity(new OctetString("public"));
-        target.setAddress(GenericAddress.parse(address));
-        target.setRetries(2);
-        target.setTimeout(1500);
-        target.setVersion(SnmpConstants.version2c);
-    }
-
-    private ResponseEvent get(@NotNull OID oids[]) throws IOException {
-        PDU pdu = new PDU();
-        for (OID oid : oids) {
-            pdu.add(new VariableBinding(oid));
-        }
-        pdu.setType(PDU.GET);
-        ResponseEvent event = snmp.send(pdu, getTarget(), null);
-        if(event != null) {
-            return event;
-        }
-        throw new RuntimeException("GET timed out");
-    }
-
-    private Target getTarget() {
-        Address targetAddress = GenericAddress.parse(address);
-        CommunityTarget target = new CommunityTarget();
-        target.setCommunity(new OctetString("public"));
-        target.setAddress(targetAddress);
-        target.setRetries(2);
-        target.setTimeout(1500);
-        target.setVersion(SnmpConstants.version2c);
-        return target;
-    }
-    private void updateTarget(){
-        configTarget();
-    }
+*/
 }
