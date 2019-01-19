@@ -6,16 +6,19 @@ import java.util.Map;
 
 public class IfTable {
     private Map<String, IfStatus> ifList;
-    private Map<String, List<Double>> ifTrafficLog;
+    private List<Thread> threads;
 
     public IfTable(){
         this.ifList = new HashMap<String, IfStatus>();
-        this.ifTrafficLog = new HashMap<String, List<Double>>();
+        this.threads = new ArrayList<Thread>();
     }
 
     public void addInterface(String mac, int index){
-        ifList.put(mac, new IfStatus(mac,index));
-
+        IfStatus itf = new IfStatus(mac,index);
+        Thread t = new Thread(itf);
+        threads.add(t);
+        ifList.put(mac, itf);
+        t.start();
     }
 
     public ArrayList<String> ifListToString(){
