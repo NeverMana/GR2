@@ -10,7 +10,7 @@ import static java.lang.Integer.parseInt;
 public class Ux {
     private int op;
     private Scanner input;
-    private SNMPClient client;
+    private static SNMPClient client;
 
     public Ux(){
         op=9;
@@ -44,12 +44,10 @@ public class Ux {
                 break;
             case 1: {
                 client.fillIfTable();
-                printInterfaces();
-
                 break;
             }
             case 2: {
-
+                client.startMonitoring();
                 break;
             }
             case 3: {

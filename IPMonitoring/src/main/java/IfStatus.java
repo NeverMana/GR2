@@ -1,12 +1,12 @@
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class IfStatus implements Runnable{
+    private static SNMPClient snmp;
+
     private int index;
-    private double inOctets;
-    private double outOctets;
     private String macAddress;
-    private int polling, minInterval, maxInterval; //em segundos, min interval \ | val | /   \ / :: max interval | | :: min interval
-    public List<Double> log;
+    private int polling;
+
 
     public IfStatus(String mac, int index){
         this.macAddress = mac;
@@ -21,34 +21,16 @@ public class IfStatus implements Runnable{
         return this.macAddress;
     }
 
+    public static void setSnmp (SNMPClient a) { snmp = a; }
+
     public void run(){
-        Double cur = new Double(1);
-
-        /*
-        * Como fazer get?
-        * Depois de get guardar valores de trafego em log
-        */
-        checkPolling(cur);
-
-    }
-
-    private void checkPolling(double cur){
-        Double last = log.get(log.size());
-        if(last + minInterval > cur || last - minInterval < cur){
-            updatePolling(false);
-        }
-        else if( last + maxInterval < cur || last - maxInterval > cur){
-            updatePolling(true);
+        while(true) {
+            snmp.getTraffic(macAddress, index);
+            try {
+                TimeUnit.SECONDS.sleep(polling);
+            } catch (InterruptedException e) {
+                System.err.println(e.getMessage());
+            }
         }
     }
-
-    private void updatePolling(boolean more){
-        if(more){
-            polling *=2;
-        }
-        else{
-            polling /=2;
-        }
-    }
-
 }

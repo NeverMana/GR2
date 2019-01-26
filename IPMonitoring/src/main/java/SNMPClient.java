@@ -1,8 +1,5 @@
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
@@ -26,20 +23,30 @@ public class SNMPClient {
     Snmp snmp = null;
     public String address ;
     CommunityTarget target;
-    IfTable interfaces;
+    //IfTable interfaces;
+
+    private Map<String, IfStatus> ifList;
+    private Map<String, List<Double>> ifTrafficLog;
+    private Map<String, Thread> threadMap;
 
     //Construtores
     public SNMPClient() {
         address = "127.0.0.1/24";
         target = new CommunityTarget();
-        interfaces = new IfTable();
+        //interfaces = new IfTable();
         configTarget();
+
+        this.ifList = new HashMap<String, IfStatus>();
+        this.ifTrafficLog = new HashMap<String, List<Double>>();
     }
     public SNMPClient(String add) {
         address = add;
         target = new CommunityTarget();
-        interfaces = new IfTable();
+        //interfaces = new IfTable();
         configTarget();
+
+        this.ifList = new HashMap<String, IfStatus>();
+        this.ifTrafficLog = new HashMap<String, List<Double>>();
     }
 
     //Métodos de configuração do target snmp
@@ -68,6 +75,9 @@ public class SNMPClient {
         transport.listen();
     }
 
+
+
+
     //TODO get interfaces
 
     /*
@@ -84,10 +94,52 @@ public class SNMPClient {
             key = entry.getKey();
             if (key.startsWith(".1.3.6.1.2.1.2.2.1.6")) {
                 int parseInt = parseInt(key.substring(key.length() - 1)); //get index
-                interfaces.addInterface(entry.getValue(),parseInt);
+                ifList.put(entry.getValue(), new IfStatus(entry.getValue(),parseInt));
             }
         }
     }
+
+    public void startMonitoring(){
+        IfStatus.setSnmp(this);
+        for(IfStatus i: ifList.values()){
+            Thread t = new Thread(i);
+            threadMap.put(i.getPhysAddress(),t);
+            t.start();
+        }
+    }
+
+    public void getTraffic(String mac, int index){
+        Map<String, String> result = doWalk(".1.3.6.1.2.1.2.2"); // ifTable, mib-2 interfaces
+        String key;
+        double inOctets=0,outOctets=0;
+        Double traffic;
+
+        for (Map.Entry<String, String> entry : result.entrySet()) {
+            key = entry.getKey();
+            if (key.startsWith(".1.3.6.1.2.1.2.2.1.10."+index)) {
+                inOctets = parseInt(entry.getValue());
+
+            } else if (key.startsWith(".1.3.6.1.2.1.2.2.1.16."+index)) {
+                outOctets = parseInt(entry.getValue());
+            }
+        }
+        traffic = inOctets - outOctets;
+        setTraffic(mac, traffic);
+
+    }
+
+    public void setTraffic(String mac, Double traffic){
+        List<Double> list = ifTrafficLog.get(mac);
+        if(list.size() == 10){
+            list.remove(0);
+        }
+        list.add(traffic);
+        ifTrafficLog.put(mac,list);
+    }
+
+
+
+
 
 
 
@@ -147,6 +199,10 @@ public class SNMPClient {
     }
 
     public ArrayList<String> interfacesToString(){
-        return interfaces.ifListToString();
+        ArrayList<String> res = new ArrayList<String>();
+        for(IfStatus i: ifList.values()){
+            res.add(i.getPhysAddress());
+        }
+        return res;
     }
 }
