@@ -38,6 +38,7 @@ public class SNMPClient {
 
         this.ifList = new HashMap<String, IfStatus>();
         this.ifTrafficLog = new HashMap<String, List<Double>>();
+        threadMap = new HashMap<String, Thread>();
     }
     public SNMPClient(String add) {
         address = add;
@@ -47,6 +48,11 @@ public class SNMPClient {
 
         this.ifList = new HashMap<String, IfStatus>();
         this.ifTrafficLog = new HashMap<String, List<Double>>();
+        threadMap = new HashMap<String, Thread>();
+    }
+
+    public Map<String, List<Double>> getIfTrafficLog(){
+        return ifTrafficLog;
     }
 
     //Métodos de configuração do target snmp
@@ -75,17 +81,11 @@ public class SNMPClient {
         transport.listen();
     }
 
+    public List<Double> getLog(int index){
+        return ifTrafficLog.get(index);
+    }
 
 
-
-    //TODO get interfaces
-
-    /*
-    IFtableentry .1.3.6.1.2.1.2.2.1
-    mac .6
-    inoctets .10
-    outoctets .16
-     */
     public void fillIfTable(){
         Map<String, String> result = doWalk(".1.3.6.1.2.1.2.2"); // ifTable, mib-2 interfaces
         String key;
@@ -95,20 +95,27 @@ public class SNMPClient {
             if (key.startsWith(".1.3.6.1.2.1.2.2.1.6")) {
                 int parseInt = parseInt(key.substring(key.length() - 1)); //get index
                 ifList.put(entry.getValue(), new IfStatus(entry.getValue(),parseInt));
+                ifTrafficLog.put(entry.getValue(),new ArrayList<Double>());
             }
         }
+    }
+
+    public void killAll(){
+        IfStatus.kill();
     }
 
     public void startMonitoring(){
         IfStatus.setSnmp(this);
         for(IfStatus i: ifList.values()){
             Thread t = new Thread(i);
+            String s = i.getPhysAddress();
+            s += "null";
             threadMap.put(i.getPhysAddress(),t);
             t.start();
         }
     }
 
-    public void getTraffic(String mac, int index){
+    public double getTraffic(String mac, int index){
         Map<String, String> result = doWalk(".1.3.6.1.2.1.2.2"); // ifTable, mib-2 interfaces
         String key;
         double inOctets=0,outOctets=0;
@@ -125,14 +132,17 @@ public class SNMPClient {
         }
         traffic = inOctets - outOctets;
         setTraffic(mac, traffic);
-
+        return traffic;
     }
 
     public void setTraffic(String mac, Double traffic){
+
         List<Double> list = ifTrafficLog.get(mac);
-        if(list.size() == 10){
+
+        if (list.size() == 10) {
             list.remove(0);
         }
+
         list.add(traffic);
         ifTrafficLog.put(mac,list);
     }

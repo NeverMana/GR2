@@ -2,10 +2,11 @@ import java.util.concurrent.TimeUnit;
 
 public class IfStatus implements Runnable{
     private static SNMPClient snmp;
-
+    private static boolean keepRunning = true;
     private int index;
     private String macAddress;
     private int polling;
+    private double lastVal;
 
 
     public IfStatus(String mac, int index){
@@ -23,9 +24,19 @@ public class IfStatus implements Runnable{
 
     public static void setSnmp (SNMPClient a) { snmp = a; }
 
+    public static void kill(){
+        keepRunning = false;
+    }
+
+    public void updatePolling(double traffic){
+        if(lastVal - traffic > 50 || lastVal - traffic < -50 ) polling = polling - 1;
+        else if(lastVal - traffic < 10 && lastVal - traffic > -10) polling = polling +1;
+    }
+
     public void run(){
-        while(true) {
-            snmp.getTraffic(macAddress, index);
+        while(keepRunning) {
+            double traffic = snmp.getTraffic(macAddress, index);
+            updatePolling(traffic);
             try {
                 TimeUnit.SECONDS.sleep(polling);
             } catch (InterruptedException e) {

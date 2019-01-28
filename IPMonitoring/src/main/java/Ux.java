@@ -1,10 +1,8 @@
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
+
 import static java.lang.Integer.parseInt;
 
 public class Ux {
@@ -41,6 +39,7 @@ public class Ux {
         String oid;
         switch (op) {
             case 0:
+                client.killAll();
                 break;
             case 1: {
                 client.fillIfTable();
@@ -55,7 +54,13 @@ public class Ux {
                 break;
             }
             case 4: {
-                printInterfaces();
+                Collection<List<Double>> a = client.getIfTrafficLog().values();
+                ArrayList<String> res = client.interfacesToString();
+                int i = 0;
+                for(List<Double> l: a) {
+                    printInterfaces(l, res.get(i));
+                    i++;
+                }
                 break;
             }
         }
@@ -113,10 +118,11 @@ public class Ux {
             System.out.println(e.getMessage());
         }
     }
-    public void printInterfaces(){
-        ArrayList<String> res = client.interfacesToString();
-        for (String s :res ){
-            System.out.println(s);
+    public void printInterfaces(List<Double> l, String s){
+        System.out.println(s);
+
+        for (Double d: l ){
+            System.out.println(d);
         }
     }
 }
