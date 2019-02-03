@@ -1,5 +1,6 @@
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Integer.parseInt;
 
@@ -53,6 +54,7 @@ public class Ux {
                 break;
             }
             case 3: {
+                client.killAll();
                 setupClient();
                 break;
             }
@@ -77,12 +79,6 @@ public class Ux {
         port = input.nextLine();
         add = ip + "/" + port;
         client = new SNMPClient(add);
-        try {
-            client.start();
-            client.fillIfTable();
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-        }
     }
     public void printInterfaces(List<Double> l, String s){
         System.out.println(s);

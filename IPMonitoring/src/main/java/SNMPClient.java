@@ -61,6 +61,7 @@ public class SNMPClient {
     }
 
     public void start() throws IOException {
+        IfStatus.activate();
         System.out.println("Starting client");
         TransportMapping transport = new DefaultUdpTransportMapping();
         snmp = new Snmp(transport);

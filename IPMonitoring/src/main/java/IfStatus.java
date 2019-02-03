@@ -28,10 +28,13 @@ public class IfStatus implements Runnable{
     public static void kill(){
         keepRunning = false;
     }
+    public static void activate(){
+        keepRunning = true;
+    }
 
     public void updatePolling(double traffic){
-        if(lastVal - traffic > 50 || lastVal - traffic < -50 ) setPolling( polling - 1);
-        else if(lastVal - traffic < 10 && lastVal - traffic > -10) setPolling( polling +1);
+        if((lastVal - traffic > 50 || lastVal - traffic < -50 ) && polling > 0) setPolling( polling - 1);
+        else if((lastVal - traffic < 10 && lastVal - traffic > -10) && polling < 10) setPolling( polling +1);
     }
 
     public void run(){
