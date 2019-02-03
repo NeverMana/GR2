@@ -50,7 +50,7 @@ public class IfStatus implements Runnable{
             try {
                 TimeUnit.SECONDS.sleep(polling);
             } catch (InterruptedException e) {
-                System.err.println(e.getMessage());
+                System.out.println("Exiting");
             }
         }
     }

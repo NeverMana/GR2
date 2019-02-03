@@ -84,6 +84,9 @@ public class SNMPClient {
 
     public void killAll(){
         IfStatus.kill();
+        for(Thread t: threadMap.values()){
+            t.interrupt();
+        }
     }
 
     public void startMonitoring(){
