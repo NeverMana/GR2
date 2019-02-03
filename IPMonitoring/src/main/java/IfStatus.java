@@ -6,7 +6,7 @@ public class IfStatus implements Runnable{
     private int index;
     private String macAddress;
     private int polling;
-    private double lastVal;
+    private Double lastVal;
 
 
     public IfStatus(String mac, int index){
@@ -18,6 +18,7 @@ public class IfStatus implements Runnable{
     public void setPolling(int x){
         this.polling=x;
     }
+
     public String getPhysAddress(){
         return this.macAddress;
     }
@@ -29,14 +30,20 @@ public class IfStatus implements Runnable{
     }
 
     public void updatePolling(double traffic){
-        if(lastVal - traffic > 50 || lastVal - traffic < -50 ) polling = polling - 1;
-        else if(lastVal - traffic < 10 && lastVal - traffic > -10) polling = polling +1;
+        if(lastVal - traffic > 50 || lastVal - traffic < -50 ) setPolling( polling - 1);
+        else if(lastVal - traffic < 10 && lastVal - traffic > -10) setPolling( polling +1);
     }
 
     public void run(){
         while(keepRunning) {
             double traffic = snmp.getTraffic(macAddress, index);
-            updatePolling(traffic);
+            if(lastVal == null){
+                lastVal=traffic;
+            }
+            else{
+                updatePolling(traffic);
+                lastVal = traffic;
+            }
             try {
                 TimeUnit.SECONDS.sleep(polling);
             } catch (InterruptedException e) {

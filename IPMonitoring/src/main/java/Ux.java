@@ -1,6 +1,4 @@
-import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.*;
 
 import static java.lang.Integer.parseInt;
@@ -15,7 +13,7 @@ public class Ux {
         input = new Scanner(System.in);
         client = new SNMPClient();
     }
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Ux u = new Ux();
         while(u.op!=0){
             u.displayMenu();
@@ -36,12 +34,17 @@ public class Ux {
     }
 
     private void changeOption(){
-        String oid;
         switch (op) {
             case 0:
                 client.killAll();
                 break;
             case 1: {
+                try{
+                    client.start();
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+
                 client.fillIfTable();
                 break;
             }
@@ -66,43 +69,6 @@ public class Ux {
         }
     }
 
-
-    private String selectOID(){
-        System.out.println("Insert intended object ID:");
-        return input.nextLine();
-    }
-
-    private void printResults(@NotNull Map<String,String> res){
-        String value;
-        for (String oid: res.keySet() ) {
-            value = res.get(oid);
-            System.out.println(oid + " :: " + value );
-        }
-    }
-
-    private void startGet(String oid){
-        try {
-            String value = client.getAsString(oid);
-            System.out.println(oid + " :: " + value );
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    private void ipChange(){
-        String ip;
-        System.out.println("Select IP");
-        ip = input.nextLine();
-        client.setIp(ip);
-    }
-
-    private void portChange(){
-        String port;
-        System.out.println("Select Port");
-        port = input.nextLine();
-        client.setPort(port);
-    }
-
     private void setupClient(){
         String add, ip, port;
         System.out.println("Select IP");
@@ -120,7 +86,6 @@ public class Ux {
     }
     public void printInterfaces(List<Double> l, String s){
         System.out.println(s);
-
         for (Double d: l ){
             System.out.println(d);
         }

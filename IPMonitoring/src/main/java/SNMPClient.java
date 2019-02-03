@@ -23,7 +23,6 @@ public class SNMPClient {
     Snmp snmp = null;
     public String address ;
     CommunityTarget target;
-    //IfTable interfaces;
 
     private Map<String, IfStatus> ifList;
     private Map<String, List<Double>> ifTrafficLog;
@@ -31,9 +30,8 @@ public class SNMPClient {
 
     //Construtores
     public SNMPClient() {
-        address = "127.0.0.1/24";
+        address = "127.0.0.1/161";
         target = new CommunityTarget();
-        //interfaces = new IfTable();
         configTarget();
 
         this.ifList = new HashMap<String, IfStatus>();
@@ -43,7 +41,6 @@ public class SNMPClient {
     public SNMPClient(String add) {
         address = add;
         target = new CommunityTarget();
-        //interfaces = new IfTable();
         configTarget();
 
         this.ifList = new HashMap<String, IfStatus>();
@@ -55,18 +52,6 @@ public class SNMPClient {
         return ifTrafficLog;
     }
 
-    //Métodos de configuração do target snmp
-    public void setIp(String ip){
-        String[] split = address.split("/");
-        address = "udp:" + ip + "/" + split[1];
-        configTarget();
-
-    }
-    public void setPort(String port){
-        String[] split = address.split("/");
-        address = split[0] + "/" + port;
-        configTarget();
-    }
     private void configTarget() {
         target.setCommunity(new OctetString("public"));
         target.setAddress(GenericAddress.parse(address));
@@ -74,17 +59,13 @@ public class SNMPClient {
         target.setTimeout(1500);
         target.setVersion(SnmpConstants.version2c);
     }
+
     public void start() throws IOException {
         System.out.println("Starting client");
         TransportMapping transport = new DefaultUdpTransportMapping();
         snmp = new Snmp(transport);
         transport.listen();
     }
-
-    public List<Double> getLog(int index){
-        return ifTrafficLog.get(index);
-    }
-
 
     public void fillIfTable(){
         Map<String, String> result = doWalk(".1.3.6.1.2.1.2.2"); // ifTable, mib-2 interfaces
@@ -106,11 +87,12 @@ public class SNMPClient {
 
     public void startMonitoring(){
         IfStatus.setSnmp(this);
+
         for(IfStatus i: ifList.values()){
             Thread t = new Thread(i);
             String s = i.getPhysAddress();
-            s += "null";
-            threadMap.put(i.getPhysAddress(),t);
+            if(s == "") s = "empty";
+            threadMap.put(s,t);
             t.start();
         }
     }
@@ -147,36 +129,11 @@ public class SNMPClient {
         ifTrafficLog.put(mac,list);
     }
 
-
-
-
-
-
-
-    //Função que inicia o get
-    public String getAsString(String oid) throws IOException {
-        OID obj = new OID(oid);
-        ResponseEvent event = get(new OID[] { obj });
-        return event.getResponse().get(0).getVariable().toString();
-    }
-
-    private ResponseEvent get(OID oids[]) throws IOException {
-        PDU pdu = new PDU();
-        for (OID oid : oids) {
-            pdu.add(new VariableBinding(oid));
-        }
-        pdu.setType(PDU.GET);
-        ResponseEvent event = snmp.send(pdu, target, null);
-        if(event != null) {
-            return event;
-        }
-        throw new RuntimeException("GET timed out");
-    }
-
     public Map<String, String> doWalk(String tableOid) {
         Map<String, String> result = new TreeMap<String, String>();
         TreeUtils treeUtils = new TreeUtils(snmp, new DefaultPDUFactory());
         List<TreeEvent> events = treeUtils.getSubtree(target, new OID(tableOid));
+
         if (events == null || events.size() == 0) {
             System.out.println("Error: Unable to read table!");
             return result;
@@ -199,10 +156,8 @@ public class SNMPClient {
                 if (varBinding == null) {
                     continue;
                 }
-
                 result.put("." + varBinding.getOid().format(), varBinding.getVariable().toString());
             }
-
         }
 
         return result;
@@ -210,9 +165,11 @@ public class SNMPClient {
 
     public ArrayList<String> interfacesToString(){
         ArrayList<String> res = new ArrayList<String>();
+
         for(IfStatus i: ifList.values()){
             res.add(i.getPhysAddress());
         }
+
         return res;
     }
 }
