@@ -25,9 +25,9 @@ public class Ux {
         System.out.println("=====SNMP MANAGER=====");
         System.out.println("===Select operation===");
         System.out.println("1: Find Interfaces");
-        System.out.println("2: Display Traffic");
+        System.out.println("2: Start Monitoring");
         System.out.println("3: Config Client");
-        System.out.println("4: Display Interfaces");
+        System.out.println("4: Display Traffic");
         System.out.println("0: Exit");
         System.out.println("======================");
         op = parseInt( input.nextLine() );
