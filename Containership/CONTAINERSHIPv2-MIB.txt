@@ -1,8 +1,9 @@
-CONTAINERSHIP-MIB DEFINITIONS ::= BEGIN
+CONTAINERSHIPv2-MIB DEFINITIONS ::= BEGIN
 
 IMPORTS
     MODULE-IDENTITY, OBJECT-TYPE, Integer32, experimental       FROM SNMPv2-SMI
-    DisplayString,TEXTUAL-CONVENTION                                            FROM SNMPv2-TC
+    DisplayString,TEXTUAL-CONVENTION                            FROM SNMPv2-TC
+    OBJECT-GROUP                                                FROM SNMPv2-CONF
 
 ;
 
@@ -30,12 +31,11 @@ containership MODULE-IDENTITY
 --
 -- top level structure
 --
-
 containershipParam                              OBJECT IDENTIFIER ::= { containership 1 }
 containershipImageTable                         OBJECT IDENTIFIER ::= { containership 2 }
 containershipContainerTable                     OBJECT IDENTIFIER ::= { containership 3 }
 containershipStatus                             OBJECT IDENTIFIER ::= { containership 4 }
-
+containershipGroups                             OBJECT IDENTIFIER ::= { containership 5 }
 --
 -- Textual convention flag
 --
@@ -44,6 +44,49 @@ CreateFlag ::= TEXTUAL-CONVENTION
     DESCRIPTION
         "Representa se e para criar ou nao"
     SYNTAX INTEGER  { noCreate(0),  create(1) }
+
+--
+-- Groups
+--
+
+containershipParamGroup OBJECT-GROUP
+    OBJECTS { contImageIndex,
+              contName,
+              contCreateFlag }
+    STATUS  current
+    DESCRIPTION
+            "Parametros da containership"
+    ::= { containershipGroups 1 }
+
+containershipImageTableGroup OBJECT-GROUP
+    OBJECTS { imageId,
+              imageName,
+              imageVers }
+    STATUS  current
+    DESCRIPTION
+            "Imagens da containership"
+    ::= { containershipGroups 2 }
+
+containershipContTableGroup OBJECT-GROUP
+    OBJECTS { containerId,
+              containerName,
+              containerImgId,
+              containerStatus,
+              containerProcUse }
+    STATUS  current
+    DESCRIPTION
+            "Parametros da containership"
+    ::= { containershipGroups 3 }
+
+containershipStatusGroup OBJECT-GROUP
+    OBJECTS { containershipUpTime }
+    STATUS  current
+    DESCRIPTION
+            "Parametros da containership"
+    ::= { containershipGroups 4 }
+
+
+
 --
 -- containershipParam : contImageIndex, contImageName, contCreationFlag
 --
@@ -82,7 +125,7 @@ contImageTable OBJECT-TYPE
         STATUS          current
         DESCRIPTION
                 "Tabela que contem as imagens disponiveis a ser utilizaveis por um container"
-        ::= {containershipImageTable 1}
+        ::= { containershipImageTable 1 }
 
 
 
@@ -92,7 +135,7 @@ contImageTableEntry OBJECT-TYPE
         STATUS          current
         DESCRIPTION
                 "Uma linha da tabela de imagens. Inclui indice, nome da imagem, versao"
-	INDEX { imageId }
+	    INDEX { imageId }
         ::= { contImageTable 1 }
 
 CONTImageTableEntry ::= SEQUENCE {
