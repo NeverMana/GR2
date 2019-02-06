@@ -73,11 +73,6 @@ public class Agent extends BaseAgent {
                                           SnmpNotificationMIB notificationMIB) {
     }
 
-    /**
-     * Minimal View based Access Control
-     *
-     * http://www.faqs.org/rfcs/rfc2575.html
-     */
     @Override
     protected void addViews(VacmMIB vacm) {
 
