@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class Containership {
     public Agent agent;
-    //oid = 1.3.6.1.3.2019 :: CONTAINERSHIP\Q-MIB
+    //oid = 1.3.6.1.3.2019 :: CONTAINERSHIP-MIB
 
     public Containership (String add) throws IOException{
         agent = new Agent(add);
@@ -31,7 +31,7 @@ public class Containership {
         a = "1.3.6.1.2019.1.3.0";
         agent.registerManagedObject(MOScalarFactory.createReadWrite(new OID(a),""));
     }
-
+    
     public static void main(String[] args) throws IOException, InterruptedException{
         String add = "0.0.0.0/6666";
         Containership containership = new Containership(add);

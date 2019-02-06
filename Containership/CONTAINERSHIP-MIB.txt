@@ -73,7 +73,7 @@ contCreateFlag OBJECT-TYPE
 	STATUS 		current
 	DESCRIPTION
 		" Flag a indicar que o container com essa imagem deverá ser criado"
-	::= { containershipParam 2 }
+	::= { containershipParam 3 }
 
 --
 -- containershipImageTable 
@@ -124,7 +124,7 @@ imageVers OBJECT-TYPE
 	STATUS 		current
 	DESCRIPTION
 		"Versão da imagem (latest, 8.1, etc.)"
-	::= { contImageTableEntry 1 }
+	::= { contImageTableEntry 3 }
 	
 --
 -- containershipContainerTable
