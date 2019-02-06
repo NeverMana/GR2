@@ -1,4 +1,5 @@
 CONTAINERSHIP-MIB DEFINITIONS ::= BEGIN
+
 IMPORTS
     MODULE-IDENTITY, OBJECT-TYPE, Integer32, experimental,
     NOTIFICATION-TYPE                       FROM SNMPv2-SMI
@@ -150,7 +151,7 @@ ContainerTableEntry ::= SEQUENCE {
 	containerName		DisplayString,
 	containerImgId		Integer32,
 	containerStatus 	DisplayString,
-	containerProcUse	--tbd
+	containerProcUse	Integer32 (0..100)
 }
 
 containerId OBJECT-TYPE
@@ -186,7 +187,7 @@ containerStatus OBJECT-TYPE
 	::= { containerTableEntry 4 }
 
 containerProcUse OBJECT-TYPE
-	SYNTAX 		--tbd
+	SYNTAX 		Integer32 (0..100)
 	MAX-ACCESS 	read-only
 	STATUS 		current
 	DESCRIPTION
@@ -198,7 +199,7 @@ containerProcUse OBJECT-TYPE
 --
 
 containershipUpTime OBJECT-TYPE
-	SYNTAX 		DateAndTime
+	SYNTAX 		DateAndTime --DisplayString?
 	ACCESS 		read-only
 	STATUS 		mandatory
 	DESCRIPTION
