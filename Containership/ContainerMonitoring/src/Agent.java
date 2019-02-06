@@ -1,40 +1,56 @@
+import java.io.File;
+import java.io.IOException;
+
 import org.snmp4j.TransportMapping;
-import org.snmp4j.log.LogFactory;
+import org.snmp4j.agent.BaseAgent;
+import org.snmp4j.agent.CommandProcessor;
+import org.snmp4j.agent.DuplicateRegistrationException;
+import org.snmp4j.agent.MOGroup;
+import org.snmp4j.agent.ManagedObject;
+import org.snmp4j.agent.mo.MOTableRow;
+import org.snmp4j.agent.mo.snmp.RowStatus;
+import org.snmp4j.agent.mo.snmp.SnmpCommunityMIB;
+import org.snmp4j.agent.mo.snmp.SnmpNotificationMIB;
+import org.snmp4j.agent.mo.snmp.SnmpTargetMIB;
+import org.snmp4j.agent.mo.snmp.StorageType;
+import org.snmp4j.agent.mo.snmp.VacmMIB;
+import org.snmp4j.agent.security.MutableVACM;
 import org.snmp4j.mp.MPv3;
 import org.snmp4j.security.SecurityLevel;
 import org.snmp4j.security.SecurityModel;
 import org.snmp4j.security.USM;
-import org.snmp4j.smi.*;
+import org.snmp4j.smi.Address;
+import org.snmp4j.smi.GenericAddress;
+import org.snmp4j.smi.Integer32;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.Variable;
 import org.snmp4j.transport.TransportMappings;
 
+/*
+ * This Agent contains mimimal functionality for running a version 2c snmp
+ * agent.
+ */
 public class Agent extends BaseAgent {
 
-    // not needed but very useful of course
-    static {
-        LogFactory.setLogFactory(new Log4jLogFactory());
-    }
 
     private String address;
 
     public Agent(String address) throws IOException {
-
-        // These files does not exist and are not used but has to be specified
-        // Read snmp4j docs for more info
         super(new File("conf.agent"), new File("bootCounter.agent"),
                 new CommandProcessor(
                         new OctetString(MPv3.createLocalEngineID())));
         this.address = address;
     }
 
-    /**
-     * We let clients of this agent register the MO they
-     * need so this method does nothing
+    /*
+     * We let clients of this agent register the MO they need so this method does nothing
      */
     @Override
     protected void registerManagedObjects() {
     }
 
-    /**
+    /*
      * Clients can register the MO they need
      */
     public void registerManagedObject(ManagedObject mo) {
@@ -140,5 +156,6 @@ public class Agent extends BaseAgent {
                 new OctetString("public2public").toSubIndex(true), com2sec);
         communityMIB.getSnmpCommunityEntry().addRow(row);
     }
+
 
 }
