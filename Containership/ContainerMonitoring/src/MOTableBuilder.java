@@ -29,7 +29,6 @@ public class MOTableBuilder {
 
     private int colTypeCnt = 0;
 
-
     /**
      * Specified oid is the root oid of this table
      */

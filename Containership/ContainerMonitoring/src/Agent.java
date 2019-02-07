@@ -38,15 +38,23 @@ import javax.xml.bind.annotation.XmlType;
 public class Agent extends BaseAgent {
 
     private String address;
+    private CONTAINERSHIPv2MIB mib;
 
     public Agent(String address) throws IOException {
-
-        // These files does not exist and are not used but has to be specified
-        // Read snmp4j docs for more info
         super(new File("conf.agent"), new File("bootCounter.agent"),
                 new CommandProcessor(
                         new OctetString(MPv3.createLocalEngineID())));
         this.address = address;
+    }
+
+    public void setUpMIB(){
+        MOFactory factory = DefaultMOFactory.getInstance();
+        mib = new CONTAINERSHIPv2MIB(factory);
+        try {
+            mib.registerMOs(getServer(),new OctetString("public"));
+        } catch (DuplicateRegistrationException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -66,6 +74,10 @@ public class Agent extends BaseAgent {
         } catch (DuplicateRegistrationException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public CONTAINERSHIPv2MIB getMyMib(){
+        return mib;
     }
 
     public void unregisterManagedObject(MOGroup moGroup) {
@@ -99,6 +111,10 @@ public class Agent extends BaseAgent {
                         "fullNotifyView"), StorageType.nonVolatile);
 
         vacm.addViewTreeFamily(new OctetString("fullReadView"), new OID("1.3"),
+                new OctetString(), VacmMIB.vacmViewIncluded,
+                StorageType.nonVolatile);
+
+        vacm.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1.3"),
                 new OctetString(), VacmMIB.vacmViewIncluded,
                 StorageType.nonVolatile);
     }
@@ -136,7 +152,6 @@ public class Agent extends BaseAgent {
         run();
         sendColdStartNotification();
     }
-
 
     protected void unregisterManagedObjects() {
         // here we should unregister those objects previously registered...

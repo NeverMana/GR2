@@ -2,7 +2,7 @@ CONTAINERSHIPv2-MIB DEFINITIONS ::= BEGIN
 
 IMPORTS
     MODULE-IDENTITY, OBJECT-TYPE, Integer32, experimental       FROM SNMPv2-SMI
-    DisplayString,TEXTUAL-CONVENTION                            FROM SNMPv2-TC
+    OctetString,TEXTUAL-CONVENTION                            FROM SNMPv2-TC
     OBJECT-GROUP                                                FROM SNMPv2-CONF
 
 ;
@@ -100,7 +100,7 @@ contImageIndex OBJECT-TYPE
     ::= { containershipParam 1 }
 
 contName OBJECT-TYPE
-        SYNTAX          DisplayString
+        SYNTAX          OctetString
         MAX-ACCESS      read-write
         STATUS          current
         DESCRIPTION
@@ -140,8 +140,8 @@ contImageTableEntry OBJECT-TYPE
 
 CONTImageTableEntry ::= SEQUENCE {
         imageId         Integer32,
-        imageName       DisplayString,
-        imageVers       DisplayString
+        imageName       OctetString,
+        imageVers       OctetString
 }
 
 
@@ -155,7 +155,7 @@ imageId OBJECT-TYPE
 
 
 imageName OBJECT-TYPE
-        SYNTAX          DisplayString
+        SYNTAX          OctetString
         MAX-ACCESS      read-write
         STATUS          current
         DESCRIPTION
@@ -164,7 +164,7 @@ imageName OBJECT-TYPE
         
 
 imageVers OBJECT-TYPE
-        SYNTAX          DisplayString
+        SYNTAX          OctetString
         MAX-ACCESS      read-write
         STATUS          current
         DESCRIPTION
@@ -194,9 +194,9 @@ containerTableEntry OBJECT-TYPE
 
 ContainerTableEntry ::= SEQUENCE {
         containerId             Integer32,
-        containerName           DisplayString,
+        containerName           OctetString,
         containerImgId          Integer32,
-        containerStatus         DisplayString,
+        containerStatus         OctetString,
         containerProcUse        Integer32
 }
 
@@ -209,7 +209,7 @@ containerId OBJECT-TYPE
         ::= { containerTableEntry 1 }
 
 containerName OBJECT-TYPE
-        SYNTAX          DisplayString
+        SYNTAX          OctetString
         MAX-ACCESS      read-only
         STATUS          current
         DESCRIPTION
@@ -225,7 +225,7 @@ containerImgId OBJECT-TYPE
         ::= { containerTableEntry 3 }
 
 containerStatus OBJECT-TYPE
-        SYNTAX          DisplayString
+        SYNTAX          OctetString
         MAX-ACCESS      read-only
         STATUS          current
         DESCRIPTION
@@ -245,7 +245,7 @@ containerProcUse OBJECT-TYPE
 --
 
 containershipUpTime OBJECT-TYPE
-        SYNTAX          DisplayString
+        SYNTAX          OctetString
         MAX-ACCESS      read-only
         STATUS          current
         DESCRIPTION
