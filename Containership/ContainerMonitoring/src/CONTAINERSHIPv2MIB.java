@@ -310,7 +310,7 @@ implements MOGroup
     containerTableEntryColumns[idxContainerStatus] = 
       moFactory.createColumn(colContainerStatus, 
                              SMIConstants.SYNTAX_OCTET_STRING,
-                             moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_ONLY),
+                             moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE),
                              tcModuleSNMPv2Tc,
                              tcDefDisplayString);
     containerTableEntryColumns[idxContainerProcUse] = 

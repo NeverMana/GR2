@@ -2,7 +2,7 @@ CONTAINERSHIPv2-MIB DEFINITIONS ::= BEGIN
 
 IMPORTS
     MODULE-IDENTITY, OBJECT-TYPE, Integer32, experimental       FROM SNMPv2-SMI
-    OctetString,TEXTUAL-CONVENTION                            FROM SNMPv2-TC
+    TEXTUAL-CONVENTION	    		 		        			FROM SNMPv2-TC
     OBJECT-GROUP                                                FROM SNMPv2-CONF
 
 ;
@@ -226,7 +226,7 @@ containerImgId OBJECT-TYPE
 
 containerStatus OBJECT-TYPE
         SYNTAX          OctetString
-        MAX-ACCESS      read-only
+        MAX-ACCESS      read-write
         STATUS          current
         DESCRIPTION
                 "Estado do container ou up, down, removing, creating e changing"

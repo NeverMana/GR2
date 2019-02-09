@@ -82,9 +82,6 @@ public class Containership {
                     OctetString name = (OctetString) agent.getMyMib().getContName().getValue();
                     Integer32 contImageidx = (Integer32) agent.getMyMib().getContImageIndex().getValue();
 
-                    Random r = new Random();
-                    int cpu = r.nextInt(100);
-
                     mib.getContainerTableEntry().addRow(
                             mib.getContainerTableEntry().createRow(
                                     new OID(contidxrow.toString()),
